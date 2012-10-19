@@ -1,36 +1,54 @@
 (ns net.cgrand.regex.charset
-  (:refer-clojure :exclude [complement * + - not contains?]))
+  (:refer-clojure :exclude [complement * + - not contains?])
+  (:require [cljs.core :as core]))
 
+
+;; ranges is a set of disjoint intervals.
+;; nil represents (+ or -) infinity.
 (defprotocol Rangeable
-  (ranges [cs]))
+  (ranges [rs]))
 
 (defprotocol Charsetable
   (charset [x]))
 
-(extend-protocol Rangeable
-  String
-  (ranges [s] (map vector s s))
-  Character
-  (ranges [c] [[c c]])
-  java.lang.Number
-  (ranges [n] [[n n]])
-  clojure.lang.APersistentMap
-  (ranges [m] (seq m))
-  clojure.lang.APersistentSet
-  (ranges [s] (map (fn [x] [x x]) s))
-  nil
-  (ranges [_] nil))
 
-(defrecord Charset [cs]
+(defn char [n] (if (number? n) (String.fromCharCode n) n))
+(defn char-code [c] (.charCodeAt c 0))
+
+(extend-protocol Rangeable
+  string             (ranges [s] (map vector s s))
+  number             (ranges [n] [[(char n) (char n)]])
+
+  ObjMap             (ranges [m] (map #(vec (map char %)) (seq m)))
+  HashMap            (ranges [m] (map #(vec (map char %)) (seq m)))
+  PersistentArrayMap (ranges [m] (map #(vec (map char %)) (seq m)))
+  PersistentHashMap  (ranges [m] (map #(vec (map char %)) (seq m)))
+  PersistentTreeMap  (ranges [m] (map #(vec (map char %)) (seq m)))
+
+  PersistentHashSet  (ranges [s] (map (fn [x] [(char x) (char x)]) s))
+  PersistentTreeSet  (ranges [s] (map (fn [x] [(char x) (char x)]) s))
+
+  nil                (ranges [_] nil))
+
+(defrecord Charset [rs]
   Rangeable
-  (ranges [_] (seq cs))
+  (ranges [_] (seq rs))
   Charsetable
   (charset [this] this))
 
-(defn lt [[a b] [c d]]
-  (boolean (and b c (< (int b) (int c)))))
+(defn left-of [[a b] c]
+  (and b c (< (char-code b) (char-code c))))
 
-(def no-char (Charset. (sorted-set-by lt)))
+(defn right-of [[a b] c]
+  (and a c (< (char-code c) (char-code a))))
+
+(defn range-compare [[a b] [c d]]
+  (cond
+   (left-of [a b] c) -1
+   (right-of [a b] d) 1
+   :default 0))
+
+(def no-char (Charset. (sorted-set-by range-compare)))
 
 (extend-protocol Charsetable
   nil
@@ -38,19 +56,19 @@
     no-char))
 
 (defn- pred [c]
-  (when (and c (pos? (int c))) (char (dec (int c)))))
+  (when (and c (pos? (char-code c))) (char (dec (char-code c)))))
 
 (defn- succ [c]
-  (when (and c (< (int c) 0xFFFF)) (char (inc (int c)))))
+  (when (and c (< (char-code c) 0xFFFF)) (char (inc (char-code c)))))
 
-(defn- split 
+(defn- split
   "Splits ranges right after x."
-  [cs x]
-  (if-let [[a b :as r] (when x (get cs [x x]))]
-    (if (or (= b x) (and b x (= (int b) (int x))))
-      cs
-      (-> cs (disj r) (conj [a x] [(succ x) b])))
-    cs))
+  [rs x]
+  (if-let [[a b :as r] (when x (get rs [x x]))]
+    (if (or (= b x) (and b x (= (char-code b) (char-code x))))
+      rs
+      (-> rs (disj r) (conj [a x] [(succ x) b])))
+    rs))
 
 (defn- between [rs a b]
   (cond
@@ -60,11 +78,11 @@
     :else (seq rs)))
 
 (defn- subtract [cs [a b]]
-  (let [rs (-> cs :cs (split (pred a)) (split b))]
+  (let [rs (-> cs :rs (split (pred a)) (split b))]
     (Charset. (reduce disj rs (between rs a b)))))
 
 (defn- add [cs [a b]]
-  (let [rs (:cs cs)
+  (let [rs (:rs cs)
         aa (pred a)
         bb (succ b)
         a (when a (first (get rs [aa aa] [a a])))
@@ -75,7 +93,7 @@
 (def any-char (add no-char [nil nil]))
 
 (extend-protocol Charsetable
-  Object
+  js/Object
   (charset [x]
     (reduce add no-char (ranges x))))
 
@@ -84,7 +102,7 @@
   ([a] (charset a))
   ([a b]
     (reduce add (charset a) (ranges b)))
-  ([a b & cs] 
+  ([a b & cs]
     (reduce + (+ a b) cs)))
 
 (defn - "complement or asymetric difference"
@@ -103,7 +121,7 @@
 (defn not [& xs]
   (- (reduce + xs)))
 
-(defn pick 
+(defn pick
   "Returns a character contained in the charset or nil if the
    charset is empty."
   [cs]
@@ -111,11 +129,11 @@
     (or a \u0000)))
 
 (defn has? [cs c]
-  (boolean ((:cs (charset cs)) [c c])))
+  (boolean ((:rs (charset cs)) [c c])))
 
 (defn disjunctive-union
   "as and bs are collection of disjunct charsets, returns their union as a
-   collection of smaller disjunct charsets." 
+   collection of smaller disjunct charsets."
   ([] nil)
   ([as] as)
   ([as bs]
@@ -129,7 +147,7 @@
 
 (defn disjunctive-intersection
   "as and bs are collection of disjunct charsets, returns their intersection
-   as a collection of smaller disjunct charsets." 
+   as a collection of smaller disjunct charsets."
   ([] [any-char])
   ([as] as)
   ([as bs]

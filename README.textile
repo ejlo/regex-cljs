@@ -1,6 +1,9 @@
-net.cgrand.regex is a Clojure notation (DSL) for regexes.
 
-Regexes are already a DSL of their own but a write-only DSL. 
+net.cgrand.regex-cljs is a clojurescript port of
+
+"net.cgrand.regex":https://github.com/cgrand/regex which is a Clojure notation (DSL) for regexes.
+
+Regexes are already a DSL of their own but a write-only DSL.
 
 This DSL allows to reuse regexes or parts of them and also adds support for named groups.
 
@@ -12,9 +15,9 @@ h1. Example
   (def datestamp-re
     (let [d {\0 \9}]
       (regex [d d d d :as :year] \- [d d :as :month] \- [d d :as :day])))
-      
+
   regex=> (exec datestamp-re "2007-10-23")
   {:day "23", :month "10", :year "2007", nil "2007-10-23"}
   regex=> (exec datestamp-re "20X7-10-23")
   nil
-</pre>    
+</pre>
