@@ -1,6 +1,5 @@
-(ns net.cgrand.regex.charset
-  (:refer-clojure :exclude [complement * + - not contains?])
-  (:require [cljs.core :as core]))
+(ns net.cgrand.regex-cljs.charset
+  (:refer-clojure :exclude [complement * + - not contains?]))
 
 
 ;; ranges is a set of disjoint intervals.

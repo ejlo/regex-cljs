@@ -6,7 +6,7 @@
   (:use-macros [net.cgrand.regex-cljs-macros :only [letmap]])
   (:refer-clojure :exclude [repeat + * - resolve])
   (:require [clojure.string :as s]
-            [net.cgrand.regex.charset :as cs]))
+            [net.cgrand.regex-cljs.charset :as cs]))
 
 ;; Value-based DSL definition
 (defprotocol RegexValue
