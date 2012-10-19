@@ -1,9 +1,9 @@
-(ns net.cgrand.regex
+(ns net.cgrand.regex-cljs
   "A DSL for people who prefer verbose, maintenable regexes to terse
    now-you-have-two-problems ones. Clojurescript port."
   #_{:author "Christophe Grand, Erik Ouchterlony (cljs port)"
      :license "EPL"}
-  (:use-macros [net.cgrand.regex-macros :only [letmap]])
+  (:use-macros [net.cgrand.regex-cljs-macros :only [letmap]])
   (:refer-clojure :exclude [repeat + * - resolve])
   (:require [clojure.string :as s]
             [net.cgrand.regex.charset :as cs]))
