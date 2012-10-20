@@ -1,4 +1,4 @@
-(defproject net.cgrand/regex-cljs "1.1.0"
+(defproject net.cgrand/regex-cljs "1.1.0-SNAPSHOT"
   :description "a DSL for people who prefer verbose, composable regexes. Clojurescript port"
   :url "http://github.com/ejlo/regex-cljs/"
   :dependencies [[org.clojure/clojure "[1.4.0,)"]]
