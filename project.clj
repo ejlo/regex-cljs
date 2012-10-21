@@ -1,4 +1,4 @@
-(defproject org.clojars.ejlo/regex-cljs "1.1.0-SNAPSHOT"
+(defproject regex-cljs "1.1.0-SNAPSHOT"
   :description "a DSL for people who prefer verbose, composable regexes. Clojurescript port of https://github.com/cgrand/regex"
   :url "http://github.com/ejlo/regex-cljs/"
   :license {:name "Eclipse Public License"
