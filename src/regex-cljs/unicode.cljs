@@ -1,5 +1,5 @@
-(ns net.cgrand.regex-cljs.unicode
-  (:require [net.cgrand.regex-cljs.charset :as cs]
+(ns regex-cljs.unicode
+  (:require [regex-cljs.charset :as cs]
             #_[clojure.pprint :as p]))
 
 (defn- charset-expr [cs]

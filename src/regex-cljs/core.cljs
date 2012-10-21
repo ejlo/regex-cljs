@@ -1,4 +1,4 @@
-(ns net.cgrand.regex-cljs
+(ns regex-cljs.core
   "A DSL for people who prefer verbose, maintenable regexes to terse
    now-you-have-two-problems ones. Clojurescript port."
   #_{:author "Christophe Grand, Erik Ouchterlony (cljs port)"
@@ -6,7 +6,7 @@
   (:use-macros [net.cgrand.regex-cljs-macros :only [letmap]])
   (:refer-clojure :exclude [repeat + * - resolve])
   (:require [clojure.string :as s]
-            [net.cgrand.regex-cljs.charset :as cs]))
+            [regex-cljs.charset :as cs]))
 
 ;; Value-based DSL definition
 (defprotocol RegexValue

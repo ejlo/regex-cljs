@@ -1,4 +1,4 @@
-(ns net.cgrand.regex-cljs.charset
+(ns regex-cljs.charset
   (:refer-clojure :exclude [complement * + - not contains?]))
 
 

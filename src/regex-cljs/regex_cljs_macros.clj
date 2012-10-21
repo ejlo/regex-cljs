@@ -1,4 +1,4 @@
-(ns net.cgrand.regex-cljs-macros)
+(ns regex-cljs.regex-cljs-macros)
 
 (defmacro letmap [& bindings]
   `(let [~@bindings]
