@@ -1,4 +1,4 @@
-(ns regex-cljs
+(ns regex-cljs.core
   "A DSL for people who prefer verbose, maintenable regexes to terse
    now-you-have-two-problems ones. Clojurescript port."
   #_{:author "Christophe Grand, Erik Ouchterlony (cljs port)"
