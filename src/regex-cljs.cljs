@@ -3,7 +3,6 @@
    now-you-have-two-problems ones. Clojurescript port."
   #_{:author "Christophe Grand, Erik Ouchterlony (cljs port)"
      :license "EPL"}
-  (:use-macros [regex-cljs-macros :only [letmap]])
   (:refer-clojure :exclude [repeat + * - resolve])
   (:require [clojure.string :as s]
             [regex-cljs.charset :as cs]))
@@ -166,20 +165,26 @@
 (def !wordchar (cs/- wordchar))
 
 (def posix
-  (letmap
-   Lower {\a \z}
-   Upper {\A \Z}
-   ASCII {\u0000 \u007F}
-   Alpha (cs/+ Lower Upper)
-   Digit {\0 \9}
-   Alnum (cs/+ Alpha Digit)
-   Punct (cs/charset "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~")
-   Graph (cs/+ Alnum Punct)
-   Print (cs/+ Graph \space)
-   Blank (cs/charset " \t")
-   Cntrl (cs/+ {\u0000 \u001F} \u007F)
-   XDigit {\0 \9 \a \f \A \F}
-   Space (cs/charset " \t\n\u000B\f\r")))
+  (let [lower {\a \z}
+        upper {\A \Z}
+        punct (cs/charset "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~")
+        alpha (cs/+ lower upper)
+        alnum (cs/+ alpha digit)
+        graph (cs/+ alnum punct)
+        print (cs/+ Graph \space)]
+    { :Lower lower
+     :Upper upper
+     :ASCII {\u0000 \u007F}
+     :Alpha alpha
+     :Digit digit
+     :Alnum alnum
+     :Punct punct
+     :Graph graph
+     :Print print
+     :Blank (cs/charset " \t")
+     :Cntrl (cs/+ {\u0000 \u001F} \u007F)
+     :XDigit {\0 \9 \a \f \A \F}
+     :Space (cs/charset " \t\n\u000B\f\r")}))
 
 
 (comment
