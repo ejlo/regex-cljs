@@ -5,7 +5,6 @@
      :license "EPL"}
   (:refer-clojure :exclude [repeat + * resolve])
   (:require [clojure.string :as s]
-            [clojure.core :as clj]
             [regex-cljs.charset :as cs]))
 
 ;; Value-based DSL definition
@@ -147,6 +146,12 @@
   (repeat (vec specs) 0 1))
 
 (def any cs/any-char)
+
+(defrecord LiteralRegex [re]
+  RegexValue
+    (pattern [this] re)
+    (groupnames [this] nil)
+    (match-empty? [this] (match-empty? re)))
 
 (defrecord PositiveLookahead [frag]
   RegexValue
