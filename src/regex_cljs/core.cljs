@@ -3,8 +3,9 @@
    now-you-have-two-problems ones. Clojurescript port."
   #_{:author "Christophe Grand, Erik Ouchterlony (cljs port)"
      :license "EPL"}
-  (:refer-clojure :exclude [repeat + * - resolve])
+  (:refer-clojure :exclude [repeat + * resolve])
   (:require [clojure.string :as s]
+            [clojure.core :as clj]
             [regex-cljs.charset :as cs]))
 
 ;; Value-based DSL definition
@@ -88,12 +89,21 @@
     (groupnames [v] [])
     (match-empty? [this] false)))
 
+(defn hexdigit [n]
+  (if (< n 10) (str n)
+      (cs/char (- (- 10 n (cs/char-code "a"))))))
+
+(defn hexcode [c]
+  (loop [n (cs/char-code c) s ""]
+    (if (= (count s) 4) (str "\\u" s)
+        (recur (/ (- n (rem n 16)) 16) (str (hexdigit (rem n 16)) s)))))
+
 (extend-type cs/Charset
   RegexValue
     (pattern [cs]
       (let [reserved (set "[]&^-")
             esc #(if (or (not (< 0x1F (cs/char-code %) 0x7F)) (reserved %))
-                   (format "\\u%04X" (cs/char-code %))
+                   (hexcode %)
                    %)
             rs (-> cs cs/charset cs/ranges)]
         (apply str (concat ["["]
@@ -172,7 +182,7 @@
         alnum (cs/+ alpha digit)
         graph (cs/+ alnum punct)
         print (cs/+ graph \space)]
-    { :Lower lower
+    {:Lower lower
      :Upper upper
      :ASCII {\u0000 \u007F}
      :Alpha alpha
