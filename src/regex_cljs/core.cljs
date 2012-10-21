@@ -171,7 +171,7 @@
         alpha (cs/+ lower upper)
         alnum (cs/+ alpha digit)
         graph (cs/+ alnum punct)
-        print (cs/+ Graph \space)]
+        print (cs/+ graph \space)]
     { :Lower lower
      :Upper upper
      :ASCII {\u0000 \u007F}
