@@ -49,11 +49,6 @@
 
 (def no-char (Charset. (sorted-set-by range-compare)))
 
-(extend-protocol Charsetable
-  nil
-  (charset [_]
-    no-char))
-
 (defn- pred [c]
   (when (and c (pos? (char-code c))) (char (dec (char-code c)))))
 
@@ -92,9 +87,19 @@
 (def any-char (add no-char [nil nil]))
 
 (extend-protocol Charsetable
-  js/Object
-  (charset [x]
-    (reduce add no-char (ranges x))))
+  string             (charset [x] (reduce add no-char (ranges x)))
+  number             (charset [x] (reduce add no-char (ranges x)))
+
+  ObjMap             (charset [x] (reduce add no-char (ranges x)))
+  HashMap            (charset [x] (reduce add no-char (ranges x)))
+  PersistentArrayMap (charset [x] (reduce add no-char (ranges x)))
+  PersistentHashMap  (charset [x] (reduce add no-char (ranges x)))
+  PersistentTreeMap  (charset [x] (reduce add no-char (ranges x)))
+
+  PersistentHashSet  (charset [x] (reduce add no-char (ranges x)))
+  PersistentTreeSet  (charset [x] (reduce add no-char (ranges x)))
+
+  nil                (charset [_] no-char))
 
 (defn + "union"
   ([] no-char)
